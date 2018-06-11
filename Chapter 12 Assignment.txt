@@ -1,0 +1,167 @@
+Chapter 12 Assignment:
+
+Part 1:
+------------------------------------------------------------------------------------------
+#66:
+
+The file object declared for file ouput stream cannot be opened in read mode using ios::in
+
+It should look like this:
+
+ofstream file;
+file.open("info.dat", ios::out);
+if(file) {
+	cout << "Could not open file.\n";
+}
+-------------------------------------------------------------------------------------------
+#70:
+
+-The file info.dat is a binary file so it should be opened in the binary mode.
+- The file mode is specified using the scope resolution operator (::) and not colon (:).
+- Since the file is opened in the read mode, no write operation can be performed on the file.
+- The put() function is used to write a single character in the file. It does not support a character array as an argument.
+- The write() function is used to insert an array of characters in the binary file.
+
+It should look like this:
+
+fstream datafile("info.dat", ios::out, ios::binary);
+char stuf[81]="abcdefghijklmnopqrstuvwxyz";
+data.write(stuff, sizeof(stuff));
+---------------------------------------------------------------------------------------------
+Part 2:
+
+// Read Write Files.cpp : This program writes the data from structures to a file.
+//
+
+#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+//Declare global variable
+const int ITEM_NUMBER = 20;
+const int DATE_NUMBER = 20;
+
+//Declare structure
+struct Inventory {
+	int quantity;
+	char item[ITEM_NUMBER];
+	char date[DATE_NUMBER];
+	double retail;
+	double wholesale;
+};
+
+//Declare constructor
+void display(Inventory);
+
+int main() {
+
+	//Make references of the structure
+	Inventory inventory = {100, "basketballs", "03/21/18", 20.05, 15.85};
+	Inventory inventory2 = {35, "hoops", "03/20/18", 208.69, 180.66};
+	Inventory inventory3 = {20, "shoes", "03/14/18", 20.60, 16.05};
+	Inventory inventory4 = {18, "shorts", "03/13/18", 16.55, 14.00};
+	Inventory inventory5 = {16, "shirts", "03/12/18", 10.00, 9.95};
+
+	//Declare the file that you are writing to
+	ofstream fout("C:\\Users\\adama\\OneDrive\\Documents\\School\\Spring2018\\Programming II\\Week8\\Assignments\\inventory.txt", ios::out  | ios::binary);
+	
+	//Call the display function to output the data to the screen
+	display(inventory);
+	display(inventory2);
+	display(inventory3);
+	display(inventory4);
+	display(inventory5);
+
+	//Write to the file and put the data into a binary array
+	fout.write(reinterpret_cast<char *>(&inventory), sizeof(inventory));
+	fout.write(reinterpret_cast<char *>(&inventory2), sizeof(inventory2));
+	fout.write(reinterpret_cast<char *>(&inventory3), sizeof(inventory3));
+	fout.write(reinterpret_cast<char *>(&inventory4), sizeof(inventory4));
+	fout.write(reinterpret_cast<char *>(&inventory5), sizeof(inventory5));
+
+	//Close file
+	fout.close();
+
+	system("pause");
+	return 0;
+}
+
+/* This function displays the data for each record to the screen
+*/
+void display(Inventory inventory) {
+	cout << "Item:  " << inventory.item << endl;
+	cout << "Quantity:  " << inventory.quantity << endl;
+	cout << "Date:  " << inventory.date << endl;
+	cout << "Retail Price: " << inventory.retail << endl;
+	cout << "Wholesale Price: " << inventory.wholesale << endl << endl;
+}
+
+-------------------------------------------------------------------------------------------
+Part 3:
+
+/* Read File.cpp : This program reads in the invetory file created in the Read Write application.  For each binary array that is stored in the file, gets put back into 
+	a Invetory structure and then totals are then calculated and outputted to the screen.
+*/
+#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+using namespace std;
+
+//Declare global variables
+int totalQuantity = 0;
+double totalRetail = 0.00;
+double totalWholesale = 0.00;
+double grandTotalRetail = 0.00;
+double grandTotalWholesale = 0.00;
+
+//Declare an Inventory structure
+struct Inventory {
+	int quantity;
+	char item[20];
+	char date[20];
+	double retail;
+	double wholesale;
+};
+int main() {
+
+	//Declare the read in file
+	Inventory inventory;
+	fstream inFile("C:\\Users\\adama\\OneDrive\\Documents\\School\\Spring2018\\Programming II\\Week8\\Assignments\\inventory.txt", ios::in | ios::binary);
+
+	//Read the first array in the file
+	inFile.read(reinterpret_cast<char *>(&inventory), sizeof(inventory));
+
+	while (!inFile.eof()) {
+
+		cout << "Item:  " << inventory.item << endl;
+		cout << "Quantity:  " << inventory.quantity << endl;
+		cout << "Date:  " << inventory.date << endl;
+		cout << "Retail Price: " << inventory.retail << endl;
+		cout << "Wholesale Price: " << inventory.wholesale << endl << endl;
+
+		//Calcualate totals
+		totalQuantity += inventory.quantity;
+		totalRetail += inventory.retail;
+		totalWholesale += inventory.wholesale;
+
+		//Read in next array
+		inFile.read(reinterpret_cast<char *>(&inventory), sizeof(inventory));
+	}
+
+	//Close file
+	inFile.close();
+
+	grandTotalRetail = totalQuantity * totalRetail;
+	grandTotalWholesale = totalQuantity * totalWholesale;
+
+	cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
+	cout << "Total Quantity: ";
+	cout << fixed << setprecision(2) << totalQuantity << endl;
+	cout << "Total Amount of Retail:  $" << grandTotalRetail << endl;
+	cout << "Total Amount of Wholesale:  $" << grandTotalWholesale << endl;
+
+	system("pause");
+}
+
